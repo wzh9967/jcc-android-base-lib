@@ -5,6 +5,7 @@
 </body>
 <script src="polyfill.min.js"></script>
 <script src="jingtum.js"></script>
+<script src = "jingtum.sign.js"></script>
 <script>
     function connectWebViewJavascriptBridge(callback) {
         if (window.WebViewJavascriptBridge) {
@@ -71,7 +72,7 @@
                 var seed = {
                     seed: data.secret
                 }
-                signature = LocalSign(data.transaction, seed, data.chain);
+                signature = LocalSign123(data.transaction, seed, data.chain);
             } catch (e) {
                 signature = null;
             }
