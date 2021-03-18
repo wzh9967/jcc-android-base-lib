@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<script type="text/javascript" src="./utils.js"></script>
+<script type="text/javascript" src="./fst.min.js"></script>
+<script>
+    function connectWebViewJavascriptBridge(callback) {
+        if (window.WebViewJavascriptBridge) {
+            callback(WebViewJavascriptBridge)
+        } else {
+            document.addEventListener(
+                'WebViewJavascriptBridgeReady',
+                function () {
+                    callback(WebViewJavascriptBridge)
+                },
+                false
+            );
+        }
+    }
+
+
+    connectWebViewJavascriptBridge(function (bridge) {
+
+      bridge.registerHandler("init", function (node, responseCallback) {
+            fstInstance = new transaction.fst_transaction(node)
+            fstInstance.init((result) =>{
+                if(result){
+                    responseCallback();
+                } else {
+                    responseCallback();
+                }
+            })
+        })
+    })
+
+
+    function initContract(params){
+        let paramsjson = JSON.parse(params);
+        let node = paramsjson.node;
+        let contract = paramsjson.contract;
+        let address = paramsjson.address;
+        fstErc20Instance = new transaction.fst_erc20_transaction(node,contract,address);
+        fstErc20Instance.init();
+        console.log("initContract over Contract = "+contract)
+    }
+
+    function createWallet(params){
+        let paramsjson = JSON.parse(params);
+        let callid = paramsjson.callid;
+        let node = paramsjson.url;
+        let result = new Object();
+        if(fstInstance == null || typeof (fstInstance) == "undefined"){
+                initStorm3(node)
+           }
+        try{
+            let wallet = fstInstance.createWallet();
+            result.address = wallet.address;
+            result.secret = wallet.secret;
+            result.words = wallet.words;
+            notifyClient(callid, 0, result);
+        }catch (err){
+            result.err = err;
+            notifyClient(callid, -1, result);
+        }
+    }
+
+    function getGasPrice(params){
+        let paramsjson = JSON.parse(params);
+        let callid = paramsjson.callid;
+        let node = paramsjson.url;
+        if(fstInstance == null || typeof (fstInstance) == "undefined"){
+           initStorm3(node)
+        }
+        var result = new Object();
+        fstInstance.getGasPrice().then((GasPrice) =>{
+            result.GasPrice = GasPrice;
+            notifyClient(callid, 0, result);
+        }).catch((err)=>{
+            result.err = err;
+            notifyClient(callid, -1, result);
+        })
+    }
+
+    function getErc20Balance(params){
+        let paramsjson = JSON.parse(params);
+        let callid = paramsjson.callid;
+        let node = paramsjson.url;
+        let address = paramsjson.address;
+        let result = new Object();
+        fstErc20Instance.getErc20Balance(address).then((balance) =>{
+            result.balance = balance;
+            notifyClient(callid, 0, result);
+        }).catch((err) =>{
+            result.err = err;
+            console.log(err);
+            notifyClient(callid, -1, result);
+        })
+    }
+
+    function sendErc20Transaction(params){
+        let paramsjson = JSON.parse(params);
+        let callid = paramsjson.callid;
+        let node = paramsjson.url;
+        let secret = paramsjson.secret;
+        let result = new Object();
+        fstErc20Instance.SignErc20Transaction(params).then((txData) =>{
+            fstErc20Instance.sendErc20Transaction(txData,secret).then((hash) =>{
+                result.hash = hash;
+                notifyClient(callid, 0, result);
+            }).catch((err)=>{
+                result.err = err;
+                console.log(err);
+                notifyClient(callid, -1, result);
+            })
+        }).catch((err)=>{
+            result.err = err;
+            console.log(err);
+            notifyClient(callid, -2, result);
+        })
+    }
+
+    function getTransactionReceipt(params){
+        let paramsjson = JSON.parse(params);
+        let callid = paramsjson.callid;
+        let node = paramsjson.url;
+        let hash = paramsjson.hash;
+        if(fstInstance == null || typeof (fstInstance) == "undefined"){
+                initStorm3(node)
+            }
+        let result = new Object();
+        fstInstance.getTransactionReceipt(hash).then((data) =>{
+            result.data = data
+            notifyClient(callid, 0, result);
+        }).catch((err) =>{
+            console.log(err)
+            result.err = err;
+            notifyClient(callid, -1, result);
+        })
+    }
+
+    function getTransactionDetail(params){
+        let paramsjson = JSON.parse(params);
+        let callid = paramsjson.callid;
+        let node = paramsjson.url;
+        let hash = paramsjson.hash;
+        if(fstInstance == null || typeof (fstInstance) == "undefined"){
+                initStorm3(node)
+        }
+        let result = new Object();
+        fstInstance.getTransactionDetail(hash).then((data) =>{
+            result.data = data
+            notifyClient(callid, 0, result);
+        }).catch((err) =>{
+            console.log(err)
+            result.err = err;
+            notifyClient(callid,-1, result);
+        })
+    }
+
+    function SignTransaction(params){
+        let paramsjson = JSON.parse(params);
+        let callid = paramsjson.callid;
+        let node = paramsjson.url;
+        let result = new Object();
+        let hash = paramsjson.hash;
+        if(fstInstance == null || typeof (fstInstance) == "undefined"){
+                initStorm3(node)
+        }
+        fstInstance.SignTransaction(params).then((raw) =>{
+            result.raw = raw
+            notifyClient(callid,0, result);
+        }).catch((err) =>{
+            console.log(err)
+            result.err = err;
+            notifyClient(callid,-1, result);
+        })
+    }
+
+    function sendTransaction(params){
+        let paramsjson = JSON.parse(params);
+        let callid = paramsjson.callid;
+        let node = paramsjson.url;
+        let result = new Object();
+        if(fstInstance == null || typeof (fstInstance) == "undefined"){
+                initStorm3(node)
+        }
+        fstInstance.SignTransaction(params).then((raw) =>{
+            fstInstance.sendtransaction(raw).then((hash) =>{
+                result.hash = hash;
+                notifyClient(callid,0, result);
+            }).catch((err) =>{
+                result.err = err;
+                console.log(err);
+                notifyClient(callid,-1, result);
+            })
+        }).catch((err) =>{
+            result.err = err;
+            console.log(err);
+            notifyClient(callid,-2, result);
+        });
+    }
+
+    function getBalance(params){
+        let paramsjson = JSON.parse(params);
+        let callid = paramsjson.callid;
+        let node = paramsjson.url;
+        let address = paramsjson.address;
+        let result = new Object();
+        if(fstInstance == null || typeof (fstInstance) == "undefined"){
+                initStorm3(node)
+        }
+        fstInstance.getBalance(address).then((balance) =>{
+            result.balance = balance;
+            notifyClient(callid,0, result);
+        }).catch((err) =>{
+            console.log(err);
+            result.err = err;
+            notifyClient(callid,-1, result);
+        })
+    }
+
+    function toIban(params){
+        let paramsjson = JSON.parse(params);
+        let callid = paramsjson.callid;
+        let node = paramsjson.url;
+        let result = new Object();
+        try{
+            if(fstInstance == null || typeof (fstInstance) == "undefined"){
+                initStorm3(node)
+            }
+            result.Iban = fstInstance.toIban(address);
+            notifyClient(callid,0, result);
+        }catch (err){
+            result.err = err;
+            notifyClient(callid,-1, result);
+        }
+    }
+
+    function fromIban(params){
+        let paramsjson = JSON.parse(params);
+        let callid = paramsjson.callid;
+        let node = paramsjson.url;
+        let result = new Object();
+        try{
+            if(fstInstance == null || typeof (fstInstance) == "undefined"){
+                initStorm3(node)
+            }
+            result.address = fstInstance.fromIban(Iban);
+            notifyClient(callid,0, result);
+        }catch (err){
+            result.err = err;
+            notifyClient(callid,-1, result);
+        }
+
+    }
+
+    function importWords(params){
+        let paramsjson = JSON.parse(params);
+        let callid = paramsjson.callid;
+        let node = paramsjson.url;
+        let password = paramsjson.password;
+        let words = paramsjson.words;
+        let result = new Object();
+        try{
+            if(fstInstance == null || typeof (fstInstance) == "undefined"){
+                initStorm3(node)
+            }
+            let wallet = fstInstance.importWords(words,password);
+            result.address = wallet.address
+            result.secret = wallet.secret
+            notifyClient(callid,0, result);
+        }catch (err){
+            result.err = err;
+            notifyClient(callid,-1, result);
+        }
+    }
+
+    function isValidSecret(params){
+        let paramsjson = JSON.parse(params);
+        let callid = paramsjson.callid;
+        let node = paramsjson.url;
+        let result = new Object();
+        try{
+            if(fstInstance == null || typeof (fstInstance) == "undefined"){
+                initStorm3(node)
+            }
+            result.isSecret = fstInstance.isValidSecret(secret);
+            notifyClient(callid,0, result);
+        }catch (err){
+            result.err = err;
+            notifyClient(callid,-1, result);
+        }
+    }
+
+    function isValidAddress(params){
+        let paramsjson = JSON.parse(params);
+        let callid = paramsjson.callid;
+        let node = paramsjson.url;
+        let result = new Object();
+        try{
+            if(fstInstance == null || typeof (fstInstance) == "undefined"){
+                initStorm3(node)
+            }
+            result.isAddress = fstInstance.isValidAddress(address);
+            notifyClient(callid,0, result);
+        }catch (err){
+            result.err = err;
+            notifyClient(callid,-1, result);
+        }
+    }
+
+    function importSecret(params){
+        let paramsjson = JSON.parse(params);
+        let callid = paramsjson.callid;
+        let node = paramsjson.url;
+        let secret = paramsjson.secret;
+        let password = paramsjson.password;
+        let result = new Object();
+        try{
+            if(fstInstance == null || typeof (fstInstance) == "undefined"){
+                initStorm3(node)
+            }
+            let wallet = fstInstance.importSecret(secret,password);
+            result.address= wallet.address;
+            result.secret= secret;
+            notifyClient(callid, 0, result);
+        }catch (err){
+            result.err = err;
+            notifyClient(callid, -1, result);
+        }
+    }
+
+    function initStorm3(node){
+        fstInstance = new transaction.fst_transaction(node)
+        fstInstance.init((result) =>{
+            if(result){
+                notifyClient(callid, 0, result);
+            } else {
+                notifyClient(callid, -1, result);
+            }
+        })
+        console.log("initStorm3 over")
+    }
+
+</script>
+</body>
+</html>

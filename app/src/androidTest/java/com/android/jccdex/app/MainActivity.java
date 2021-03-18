@@ -5,6 +5,7 @@ import android.os.Bundle;
 
 import com.android.jccdex.app.eos.EosWallet;
 import com.android.jccdex.app.ethereum.EthereumWallet;
+import com.android.jccdex.app.fst.FstWallet;
 import com.android.jccdex.app.jingtum.JingtumWallet;
 import com.android.jccdex.app.moac.MoacWallet;
 
@@ -13,6 +14,7 @@ public class MainActivity extends Activity {
     private EthereumWallet mEthereumWallet;
     private MoacWallet mMoacWallet;
     private EosWallet mEosWallet;
+    private FstWallet mFstWallet;
 
     private JingtumWallet instance;
 
@@ -24,7 +26,9 @@ public class MainActivity extends Activity {
         mMoacWallet = MoacWallet.getInstance();
         instance = JingtumWallet.getInstance();
         mEosWallet = EosWallet.getInstance();
+        mFstWallet = FstWallet.getInstance();
         instance.init(this);
+
         mEthereumWallet.init(this);
         mEosWallet.init(this);
         mEosWallet.initEosProvider("aca376f206b8fc25a6ed44dbdc66547c36c6c33e3a119ffbeaef943642f0e906", "http://openapi.eos.ren");
