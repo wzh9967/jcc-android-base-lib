@@ -4,9 +4,6 @@ import android.content.Context;
 
 import com.android.jccdex.app.base.JCallback;
 import com.android.jccdex.app.util.JCCJson;
-
-import org.json.JSONObject;
-
 /**
  * @ClassName Ifst
  * @Authur name

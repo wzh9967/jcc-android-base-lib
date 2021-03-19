@@ -2,13 +2,12 @@ package com.android.jccdex.app.fst;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
+import android.util.Log;
 
 import com.android.jccdex.app.base.JCallback;
 import com.android.jccdex.app.util.JCCJson;
 import com.github.lzyzsd.jsbridge.BridgeWebView;
 import com.github.lzyzsd.jsbridge.CallBackFunction;
-
-import org.json.JSONObject;
 
 /**
  * @ClassName FSTWallet
@@ -26,6 +25,12 @@ public class FstWallet implements Ifst{
     public void init(Context context, String node, JCallback callback) {
         mWebview = new BridgeWebView(context);
         mWebview.loadUrl(STORM_JS);
+        mWebview.callHandler("init",node, new CallBackFunction(){
+            @Override
+            public void onCallBack(String data) {
+                Log.d("onCallBack", "onCallBack: "+data);
+            }
+        });
     }
 
     public static FstWallet getInstance() {
@@ -34,7 +39,12 @@ public class FstWallet implements Ifst{
 
     @Override
     public void initContract(String contract, String address, String node) {
-
+        mWebview.callHandler("initContract",node, new CallBackFunction(){
+            @Override
+            public void onCallBack(String data) {
+                Log.d("onCallBack", "onCallBack: "+data);
+            }
+        });
     }
 
     @Override
@@ -80,7 +90,6 @@ public class FstWallet implements Ifst{
         mWebview.callHandler("importSecret",json.toString(), new CallBackFunction(){
             @Override
             public void onCallBack(String data) {
-
                 JCCJson jccJson = new JCCJson(data);
                 callback.completion(jccJson);
             }

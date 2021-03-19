@@ -8,7 +8,7 @@
 <script type="text/javascript" src="./utils.js"></script>
 <script type="text/javascript" src="./fst.min.js"></script>
 <script>
-    function connectWebViewJavascriptBridge(callback) {
+     function connectWebViewJavascriptBridge(callback) {
         if (window.WebViewJavascriptBridge) {
             callback(WebViewJavascriptBridge)
         } else {
@@ -22,329 +22,190 @@
         }
     }
 
-
     connectWebViewJavascriptBridge(function (bridge) {
 
-      bridge.registerHandler("init", function (node, responseCallback) {
+        bridge.registerHandler("init", function (node, responseCallback) {
             fstInstance = new transaction.fst_transaction(node)
             fstInstance.init((result) =>{
                 if(result){
-                    responseCallback();
+                    responseCallback(result);
                 } else {
-                    responseCallback();
+                    responseCallback(false);
                 }
             })
-        })
-    })
-
-
-    function initContract(params){
-        let paramsjson = JSON.parse(params);
-        let node = paramsjson.node;
-        let contract = paramsjson.contract;
-        let address = paramsjson.address;
-        fstErc20Instance = new transaction.fst_erc20_transaction(node,contract,address);
-        fstErc20Instance.init();
-        console.log("initContract over Contract = "+contract)
-    }
-
-    function createWallet(params){
-        let paramsjson = JSON.parse(params);
-        let callid = paramsjson.callid;
-        let node = paramsjson.url;
-        let result = new Object();
-        if(fstInstance == null || typeof (fstInstance) == "undefined"){
-                initStorm3(node)
-           }
-        try{
-            let wallet = fstInstance.createWallet();
-            result.address = wallet.address;
-            result.secret = wallet.secret;
-            result.words = wallet.words;
-            notifyClient(callid, 0, result);
-        }catch (err){
-            result.err = err;
-            notifyClient(callid, -1, result);
-        }
-    }
-
-    function getGasPrice(params){
-        let paramsjson = JSON.parse(params);
-        let callid = paramsjson.callid;
-        let node = paramsjson.url;
-        if(fstInstance == null || typeof (fstInstance) == "undefined"){
-           initStorm3(node)
-        }
-        var result = new Object();
-        fstInstance.getGasPrice().then((GasPrice) =>{
-            result.GasPrice = GasPrice;
-            notifyClient(callid, 0, result);
-        }).catch((err)=>{
-            result.err = err;
-            notifyClient(callid, -1, result);
-        })
-    }
-
-    function getErc20Balance(params){
-        let paramsjson = JSON.parse(params);
-        let callid = paramsjson.callid;
-        let node = paramsjson.url;
-        let address = paramsjson.address;
-        let result = new Object();
-        fstErc20Instance.getErc20Balance(address).then((balance) =>{
-            result.balance = balance;
-            notifyClient(callid, 0, result);
-        }).catch((err) =>{
-            result.err = err;
-            console.log(err);
-            notifyClient(callid, -1, result);
-        })
-    }
-
-    function sendErc20Transaction(params){
-        let paramsjson = JSON.parse(params);
-        let callid = paramsjson.callid;
-        let node = paramsjson.url;
-        let secret = paramsjson.secret;
-        let result = new Object();
-        fstErc20Instance.SignErc20Transaction(params).then((txData) =>{
-            fstErc20Instance.sendErc20Transaction(txData,secret).then((hash) =>{
-                result.hash = hash;
-                notifyClient(callid, 0, result);
-            }).catch((err)=>{
-                result.err = err;
-                console.log(err);
-                notifyClient(callid, -1, result);
-            })
-        }).catch((err)=>{
-            result.err = err;
-            console.log(err);
-            notifyClient(callid, -2, result);
-        })
-    }
-
-    function getTransactionReceipt(params){
-        let paramsjson = JSON.parse(params);
-        let callid = paramsjson.callid;
-        let node = paramsjson.url;
-        let hash = paramsjson.hash;
-        if(fstInstance == null || typeof (fstInstance) == "undefined"){
-                initStorm3(node)
-            }
-        let result = new Object();
-        fstInstance.getTransactionReceipt(hash).then((data) =>{
-            result.data = data
-            notifyClient(callid, 0, result);
-        }).catch((err) =>{
-            console.log(err)
-            result.err = err;
-            notifyClient(callid, -1, result);
-        })
-    }
-
-    function getTransactionDetail(params){
-        let paramsjson = JSON.parse(params);
-        let callid = paramsjson.callid;
-        let node = paramsjson.url;
-        let hash = paramsjson.hash;
-        if(fstInstance == null || typeof (fstInstance) == "undefined"){
-                initStorm3(node)
-        }
-        let result = new Object();
-        fstInstance.getTransactionDetail(hash).then((data) =>{
-            result.data = data
-            notifyClient(callid, 0, result);
-        }).catch((err) =>{
-            console.log(err)
-            result.err = err;
-            notifyClient(callid,-1, result);
-        })
-    }
-
-    function SignTransaction(params){
-        let paramsjson = JSON.parse(params);
-        let callid = paramsjson.callid;
-        let node = paramsjson.url;
-        let result = new Object();
-        let hash = paramsjson.hash;
-        if(fstInstance == null || typeof (fstInstance) == "undefined"){
-                initStorm3(node)
-        }
-        fstInstance.SignTransaction(params).then((raw) =>{
-            result.raw = raw
-            notifyClient(callid,0, result);
-        }).catch((err) =>{
-            console.log(err)
-            result.err = err;
-            notifyClient(callid,-1, result);
-        })
-    }
-
-    function sendTransaction(params){
-        let paramsjson = JSON.parse(params);
-        let callid = paramsjson.callid;
-        let node = paramsjson.url;
-        let result = new Object();
-        if(fstInstance == null || typeof (fstInstance) == "undefined"){
-                initStorm3(node)
-        }
-        fstInstance.SignTransaction(params).then((raw) =>{
-            fstInstance.sendtransaction(raw).then((hash) =>{
-                result.hash = hash;
-                notifyClient(callid,0, result);
-            }).catch((err) =>{
-                result.err = err;
-                console.log(err);
-                notifyClient(callid,-1, result);
-            })
-        }).catch((err) =>{
-            result.err = err;
-            console.log(err);
-            notifyClient(callid,-2, result);
         });
-    }
 
-    function getBalance(params){
-        let paramsjson = JSON.parse(params);
-        let callid = paramsjson.callid;
-        let node = paramsjson.url;
-        let address = paramsjson.address;
-        let result = new Object();
-        if(fstInstance == null || typeof (fstInstance) == "undefined"){
-                initStorm3(node)
-        }
-        fstInstance.getBalance(address).then((balance) =>{
-            result.balance = balance;
-            notifyClient(callid,0, result);
-        }).catch((err) =>{
-            console.log(err);
-            result.err = err;
-            notifyClient(callid,-1, result);
-        })
-    }
+        bridge.registerHandler("initContract", function (data, responseCallback) {
+            try {
+                data = JSON.parse(data);
+                fstErc20Instance = new transaction.fst_erc20_transaction(data.node,data.contract,data.address);
+                fstErc20Instance.init();
+            }catch(e){
 
-    function toIban(params){
-        let paramsjson = JSON.parse(params);
-        let callid = paramsjson.callid;
-        let node = paramsjson.url;
-        let result = new Object();
-        try{
-            if(fstInstance == null || typeof (fstInstance) == "undefined"){
-                initStorm3(node)
             }
-            result.Iban = fstInstance.toIban(address);
-            notifyClient(callid,0, result);
-        }catch (err){
-            result.err = err;
-            notifyClient(callid,-1, result);
-        }
-    }
+        });
 
-    function fromIban(params){
-        let paramsjson = JSON.parse(params);
-        let callid = paramsjson.callid;
-        let node = paramsjson.url;
-        let result = new Object();
-        try{
-            if(fstInstance == null || typeof (fstInstance) == "undefined"){
-                initStorm3(node)
+        bridge.registerHandler("createWallet", function (data, responseCallback) {
+            var wallet;
+            try {
+                wallet = fstInstance.createWallet();
+            } catch (e) {
+                wallet = null;
             }
-            result.address = fstInstance.fromIban(Iban);
-            notifyClient(callid,0, result);
-        }catch (err){
-            result.err = err;
-            notifyClient(callid,-1, result);
-        }
+            responseCallback(toJsonString(wallet));
+        });
 
-    }
-
-    function importWords(params){
-        let paramsjson = JSON.parse(params);
-        let callid = paramsjson.callid;
-        let node = paramsjson.url;
-        let password = paramsjson.password;
-        let words = paramsjson.words;
-        let result = new Object();
-        try{
-            if(fstInstance == null || typeof (fstInstance) == "undefined"){
-                initStorm3(node)
+        bridge.registerHandler("getGasPrice", async function (data, responseCallback) {
+            var GasPrice;
+            try {
+                GasPrice = await fstInstance.getGasPrice();
+            } catch (e) {
+                GasPrice.err = e;
             }
-            let wallet = fstInstance.importWords(words,password);
-            result.address = wallet.address
-            result.secret = wallet.secret
-            notifyClient(callid,0, result);
-        }catch (err){
-            result.err = err;
-            notifyClient(callid,-1, result);
-        }
-    }
+            responseCallback(GasPrice);
+        });
 
-    function isValidSecret(params){
-        let paramsjson = JSON.parse(params);
-        let callid = paramsjson.callid;
-        let node = paramsjson.url;
-        let result = new Object();
-        try{
-            if(fstInstance == null || typeof (fstInstance) == "undefined"){
-                initStorm3(node)
+        bridge.registerHandler("getErc20Balance", async function (data, responseCallback) {
+            var balance;
+            try {
+                balance = await fstErc20Instance.getErc20Balance(data.address);
+            } catch (e) {
+                balance.err = e;
             }
-            result.isSecret = fstInstance.isValidSecret(secret);
-            notifyClient(callid,0, result);
-        }catch (err){
-            result.err = err;
-            notifyClient(callid,-1, result);
-        }
-    }
+            responseCallback(balance);
+        });
 
-    function isValidAddress(params){
-        let paramsjson = JSON.parse(params);
-        let callid = paramsjson.callid;
-        let node = paramsjson.url;
-        let result = new Object();
-        try{
-            if(fstInstance == null || typeof (fstInstance) == "undefined"){
-                initStorm3(node)
-            }
-            result.isAddress = fstInstance.isValidAddress(address);
-            notifyClient(callid,0, result);
-        }catch (err){
-            result.err = err;
-            notifyClient(callid,-1, result);
-        }
-    }
 
-    function importSecret(params){
-        let paramsjson = JSON.parse(params);
-        let callid = paramsjson.callid;
-        let node = paramsjson.url;
-        let secret = paramsjson.secret;
-        let password = paramsjson.password;
-        let result = new Object();
-        try{
-            if(fstInstance == null || typeof (fstInstance) == "undefined"){
-                initStorm3(node)
+        bridge.registerHandler("sendErc20Transaction", async function (data, responseCallback) {
+            var hash;
+            try {
+                var txData = await fstErc20Instance.SignErc20Transaction(data);
+                hash = await fstErc20Instance.sendErc20Transaction(txData,data.secret);
+            } catch (e) {
+                hash.err = e;
             }
-            let wallet = fstInstance.importSecret(secret,password);
-            result.address= wallet.address;
-            result.secret= secret;
-            notifyClient(callid, 0, result);
-        }catch (err){
-            result.err = err;
-            notifyClient(callid, -1, result);
-        }
-    }
+            responseCallback(hash);
+        });
 
-    function initStorm3(node){
-        fstInstance = new transaction.fst_transaction(node)
-        fstInstance.init((result) =>{
-            if(result){
-                notifyClient(callid, 0, result);
-            } else {
-                notifyClient(callid, -1, result);
+        bridge.registerHandler("getTransactionReceipt", async function (hash, responseCallback) {
+            var result;
+            try {
+                 result = await fstInstance.getTransactionReceipt(hash);
+            } catch (e) {
+                result.err = e;
             }
-        })
-        console.log("initStorm3 over")
-    }
+            responseCallback(result);
+        });
+
+
+        bridge.registerHandler("getTransactionDetail", async function (hash, responseCallback) {
+            var result;
+            try {
+                 result = await fstInstance.getTransactionDetail(hash);
+            } catch (e) {
+                result.err = e;
+            }
+            responseCallback(result);
+        });
+
+        bridge.registerHandler("SignTransaction", async function (data, responseCallback) {
+            var raw;
+            try {
+                raw = await fstInstance.SignTransaction(data);
+            } catch (e) {
+                raw.err = e;
+            }
+            responseCallback(raw);
+        });
+
+
+        bridge.registerHandler("sendTransaction", async function (data, responseCallback) {
+            var hash;
+            try {
+                var raw = await fstInstance.SignTransaction(data);
+                hash = await fstInstance.sendtransaction(raw);
+            } catch (e) {
+                hash.err = e;
+            }
+            responseCallback(hash);
+        });
+
+
+        bridge.registerHandler("getBalance", async function (data, responseCallback) {
+            var balance;
+            try {
+                balance= await fstInstance.getBalance(data.address);
+            } catch (e) {
+                balance.err = e;
+            }
+            responseCallback(balance);
+        });
+
+
+        bridge.registerHandler("toIban", function (data, responseCallback) {
+            var Iban;
+            try {
+                Iban= fstInstance.toIban(data.address);
+            } catch (e) {
+                Iban.err = e;
+            }
+            responseCallback(Iban);
+        });
+
+        bridge.registerHandler("fromIban",  function (Iban, responseCallback) {
+            var Iban;
+            try {
+                Iban= fstInstance.fromIban(Iban);
+            } catch (e) {
+                Iban.err = e;
+            }
+            responseCallback(Iban);
+        });
+
+
+        bridge.registerHandler("importWords", function (words, responseCallback) {
+            var wallet;
+            try {
+                wallet= fstInstance.importWords(words,password);
+            } catch (e) {
+                wallet.err = e;
+            }
+            responseCallback(wallet);
+        });
+
+        bridge.registerHandler("isValidSecret", function (secret, responseCallback) {
+            var valid;
+            try {
+                valid= fstInstance.isValidSecret(secret);
+            } catch (e) {
+                valid = false;
+            }
+            responseCallback(valid);
+        });
+
+        bridge.registerHandler("isValidAddress", function (address, responseCallback) {
+            var valid;
+            try {
+                valid= fstInstance.isValidSecret(address);
+            } catch (e) {
+                valid = false;
+            }
+            responseCallback(valid);
+        });
+
+
+        bridge.registerHandler("importSecret", function (data, responseCallback) {
+            var wallet;
+            try {
+                wallet= fstInstance.importSecret(data.secret,data.password);
+            } catch (e) {
+                wallet.err = err;
+            }
+            responseCallback(wallet);
+        });
+
+
+    })
 
 </script>
 </body>
