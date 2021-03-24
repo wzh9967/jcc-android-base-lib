@@ -60,7 +60,7 @@
             try {
                 GasPrice = await fstInstance.getGasPrice();
             } catch (e) {
-                GasPrice.err = e;
+                GasPrice = null;
             }
             responseCallback(GasPrice);
         });
@@ -70,7 +70,7 @@
             try {
                 balance = await fstErc20Instance.getErc20Balance(data.address);
             } catch (e) {
-                balance.err = e;
+                balance = null;
             }
             responseCallback(balance);
         });
@@ -80,9 +80,10 @@
             var hash;
             try {
                 var txData = await fstErc20Instance.SignErc20Transaction(data);
+                data = JSON.parse(data);
                 hash = await fstErc20Instance.sendErc20Transaction(txData,data.secret);
             } catch (e) {
-                hash.err = e;
+                hash = null;
             }
             responseCallback(hash);
         });
@@ -92,20 +93,20 @@
             try {
                  result = await fstInstance.getTransactionReceipt(hash);
             } catch (e) {
-                result.err = e;
+                result = null;
             }
-            responseCallback(result);
+            responseCallback(toJsonString(result));
         });
 
 
         bridge.registerHandler("getTransactionDetail", async function (hash, responseCallback) {
-            var result;
+            var detail;
             try {
-                 result = await fstInstance.getTransactionDetail(hash);
+                 detail = await fstInstance.getTransactionDetail(hash);
             } catch (e) {
-                result.err = e;
+                detail = null;
             }
-            responseCallback(result);
+            responseCallback(toJsonString(detail));
         });
 
         bridge.registerHandler("SignTransaction", async function (data, responseCallback) {
@@ -113,7 +114,7 @@
             try {
                 raw = await fstInstance.SignTransaction(data);
             } catch (e) {
-                raw.err = e;
+                raw = null;
             }
             responseCallback(raw);
         });
@@ -125,52 +126,53 @@
                 var raw = await fstInstance.SignTransaction(data);
                 hash = await fstInstance.sendtransaction(raw);
             } catch (e) {
-                hash.err = e;
+                hash = null;
             }
             responseCallback(hash);
         });
 
 
-        bridge.registerHandler("getBalance", async function (data, responseCallback) {
+        bridge.registerHandler("getBalance", async function (address, responseCallback) {
             var balance;
             try {
-                balance= await fstInstance.getBalance(data.address);
+                balance= await fstInstance.getBalance(address);
             } catch (e) {
-                balance.err = e;
+                balance = null;
             }
             responseCallback(balance);
         });
 
 
-        bridge.registerHandler("toIban", function (data, responseCallback) {
+        bridge.registerHandler("toIban", function (address, responseCallback) {
             var Iban;
             try {
-                Iban= fstInstance.toIban(data.address);
+                Iban= fstInstance.toIban(address);
             } catch (e) {
-                Iban.err = e;
+                Iban = null;
             }
             responseCallback(Iban);
         });
 
         bridge.registerHandler("fromIban",  function (Iban, responseCallback) {
-            var Iban;
+            var address;
             try {
-                Iban= fstInstance.fromIban(Iban);
+                address= fstInstance.fromIban(Iban);
             } catch (e) {
-                Iban.err = e;
+                address = null;
             }
-            responseCallback(Iban);
+            responseCallback(address);
         });
 
 
-        bridge.registerHandler("importWords", function (words, responseCallback) {
+        bridge.registerHandler("importWords", function (data, responseCallback) {
             var wallet;
             try {
-                wallet= fstInstance.importWords(words,password);
+                data = JSON.parse(data);
+                wallet= fstInstance.importWords(data.words,data.password);
             } catch (e) {
-                wallet.err = e;
+                wallet = null;
             }
-            responseCallback(wallet);
+            responseCallback(toJsonString(wallet));
         });
 
         bridge.registerHandler("isValidSecret", function (secret, responseCallback) {
@@ -197,11 +199,13 @@
         bridge.registerHandler("importSecret", function (data, responseCallback) {
             var wallet;
             try {
+                data = JSON.parse(data);
                 wallet= fstInstance.importSecret(data.secret,data.password);
+                wallet.secret = data.secret
             } catch (e) {
-                wallet.err = err;
+                wallet = null;
             }
-            responseCallback(wallet);
+            responseCallback(toJsonString(wallet));
         });
 
 

@@ -27,7 +27,7 @@ public class FstWalletTest {
     final private static String address = "0x1e99e9720409355B64A7c9582975d2a73f594e83";
     final private static String contract ="0xc19323c4c4298673b41c6847ba937b5e6d9d77db";
     final private static String secret = "0x6defd9e9359bfcfd3c13266378b15b299e8ff6ec2cf25d948f78ec2d65887b88";
-    final private static String password = "Qq123456";
+    final private static String password = "";
     final private static String IBAN = "XE703KOMUB7RABL33RE06B2925QKY3B63K3";
     final private static String words = "follow horror traffic pipe ladder relief glare emotion thumb equip script tornado";
     @Rule
@@ -39,20 +39,22 @@ public class FstWalletTest {
     }
 
     @Test
-    public void testCreateFstWallet() {
-        final CountDownLatch sigal = new CountDownLatch(1);
-        walletUtil.createWallet( new JCallback() {
+    public void testCreateWallet() {
+        final CountDownLatch latch = new CountDownLatch(1);
+        walletUtil.createWallet(new JCallback() {
             @Override
             public void completion(JCCJson json) {
-                Assert.assertNotNull(json.getString("address"));
-                Assert.assertNotNull(json.getString("secret"));
-                sigal.countDown();
+                Assert.assertNotEquals(json.getString("address"),"");
+                Assert.assertNotEquals(json.getString("secret"),"");
+                Assert.assertNotEquals(json.getString("words"),"");
+                latch.countDown();
             }
         });
         try {
-            sigal.await();
+            //测试方法线程会在这里暂停, 直到loadData()方法执行完毕, 才会被唤醒继续执行
+            latch.await();
         } catch (InterruptedException e) {
-
+            e.printStackTrace();
         }
     }
 
@@ -179,7 +181,6 @@ public class FstWalletTest {
                 Assert.assertNotEquals(balance,"");
                 latch.countDown();
             }
-
         });
         try {
             //测试方法线程会在这里暂停, 直到loadData()方法执行完毕, 才会被唤醒继续执行
@@ -192,13 +193,13 @@ public class FstWalletTest {
     @Test
     public void testSendErc20Transaction() {
         final CountDownLatch latch = new CountDownLatch(1);
-        JCCJson data2 = new JCCJson("{}");
+        JCCJson data2 = new JCCJson();
         data2.put("address","0x981d4bc976c221b3b42270be6dcab72d37d2e0cd");
         data2.put("to",address);
         data2.put("secret","0x1a0ad31a04ed4dbcec91a8a54c0d87187b50ab60e03139f404533332e9b31917");
         data2.put("value","10000000000000000000");//0.1
         data2.put("gasLimit","700000");
-        data2.put("gasPrice","10000000000");
+        data2.put("gasPrice","10000000000.0");
         data2.put("data","");
         data2.put("contract",contract);
         walletUtil.sendErc20Transaction(data2,new JCallback() {
@@ -208,7 +209,6 @@ public class FstWalletTest {
                 Assert.assertNotEquals(hash,"");
                 latch.countDown();
             }
-
         });
         try {
             //测试方法线程会在这里暂停, 直到loadData()方法执行完毕, 才会被唤醒继续执行
@@ -222,13 +222,13 @@ public class FstWalletTest {
     @Test
     public void testSendTransaction() {
         final CountDownLatch latch = new CountDownLatch(1);
-        JCCJson data = new JCCJson("{}");
+        JCCJson data = new JCCJson();
         data.put("address","0x981d4bc976c221b3b42270be6dcab72d37d2e0cd");
         data.put("to",address);
         data.put("secret","0x1a0ad31a04ed4dbcec91a8a54c0d87187b50ab60e03139f404533332e9b31917");
         data.put("value","1000000000000000");//0.1
         data.put("gasLimit","22000");
-        data.put("gasPrice","10000000000");
+        data.put("gasPrice","10000000000.0");
         data.put("data","");
         walletUtil.sendTransaction(data,new JCallback() {
             @Override
@@ -249,7 +249,7 @@ public class FstWalletTest {
     @Test
     public void testSignTransaction() {
         final CountDownLatch latch = new CountDownLatch(1);
-        JCCJson data = new JCCJson("{}");
+        JCCJson data = new JCCJson();
         data.put("address","0x981d4bc976c221b3b42270be6dcab72d37d2e0cd");
         data.put("to",address);
         data.put("secret","0x1a0ad31a04ed4dbcec91a8a54c0d87187b50ab60e03139f404533332e9b31917");
