@@ -571,3 +571,217 @@ mEosWallet.getBalance(account, new JCallback() {
     }
 });
 ```
+
+## API of EthereumWallet
+
+Interface for interacting with the node sdk of strom3. Create FstWallet with Context in your activity.
+
+### createWallet
+
+```java
+walletUtil.createWallet(new JCallback() {
+    @Override
+    public void completion(JCCJson json) {
+        String address = json.getString("address");
+        String secret = json.getString("secret");
+        String words = json.getString("words");
+        //TODO
+    }
+});
+```
+
+### isValidSecret
+
+```java
+walletUtil.isValidSecret(secret, new JCallback() {
+    @Override
+    public void completion(JCCJson json) {
+        String isSecret = json.getString("isSecret");
+        //TODO
+    }
+});
+```
+
+### isValidAddress
+
+```java
+walletUtil.isValidAddress(address, new JCallback() {
+    @Override
+    public void completion(JCCJson json) {
+        String isAddress = json.getString("isAddress");
+        //TODO
+    }
+});
+```
+
+### importSecret
+
+```java
+walletUtil.importSecret(secret,password, new JCallback() {
+    @Override
+    public void completion(JCCJson json) {
+        String address = json.getString("address");
+        String secret = json.getString("secret");
+        //TODO
+    }
+});
+```
+
+### importWords
+
+```java
+walletUtil.importWords(words,password, new JCallback() {
+    @Override
+    public void completion(JCCJson json) {
+        String address = json.getString("address");
+        String secret = json.getString("secret");
+        //TODO    
+    }
+});
+```
+
+### toIban
+
+```java
+walletUtil.toIban(address, new JCallback() {
+    @Override
+    public void completion(JCCJson json) {
+        String iban = json.getString("Iban");
+        //TODO   
+    }
+});
+```
+
+### fromIban
+
+```java
+walletUtil.fromIban(IBAN, new JCallback() {
+    @Override
+    public void completion(JCCJson json) {
+        String address = json.getString("address");
+        //TODO  
+    }
+});
+```
+
+### getBalance
+
+```java
+walletUtil.getBalance(address,new JCallback() {
+    @Override
+    public void completion(JCCJson json) {
+        String balance = json.getString("balance");
+        //TODO  
+    }
+});
+```
+
+### sendErc20Transaction
+
+```java
+JCCJson data2 = new JCCJson();
+data2.put("address","0x981d4bc976c221b3b42270be6dcab72d37d2e0cd");
+data2.put("to",address);
+data2.put("secret","0x1a0ad31a04ed4dbcec91a8a54c0d87187b50ab60e03139f404533332e9b31917");
+data2.put("value","10000000000000000000");//0.1
+data2.put("gasLimit","700000");
+data2.put("gasPrice","10000000000.0");
+data2.put("data","");
+data2.put("contract",contract);
+walletUtil.sendErc20Transaction(data2,new JCallback() {
+    @Override
+    public void completion(JCCJson json) {
+        String hash = json.getString("hash");
+		//TODO 
+    }
+});
+```
+
+### sendTransaction
+
+```java
+JCCJson data = new JCCJson();
+data.put("address","0x981d4bc976c221b3b42270be6dcab72d37d2e0cd");
+data.put("to",address);
+data.put("secret","0x1a0ad31a04ed4dbcec91a8a54c0d87187b50ab60e03139f404533332e9b31917");
+data.put("value","1000000000000000");//0.1
+data.put("gasLimit","22000");
+data.put("gasPrice","10000000000.0");
+data.put("data","");
+walletUtil.sendTransaction(data,new JCallback() {
+    @Override
+    public void completion(JCCJson json) {
+        String hash = json.getString("hash");
+		//TODO
+    }
+});
+```
+
+### SignTransaction
+
+```java
+JCCJson data = new JCCJson();
+data.put("address","0x981d4bc976c221b3b42270be6dcab72d37d2e0cd");
+data.put("to",address);
+data.put("secret","0x1a0ad31a04ed4dbcec91a8a54c0d87187b50ab60e03139f404533332e9b31917");
+data.put("value","1000000000000000");//0.1
+data.put("gasLimit","22000");
+data.put("gasPrice","10000000000.0");
+data.put("data","");
+walletUtil.SignTransaction(data,new JCallback() {
+    @Override
+    public void completion(JCCJson json) {
+        String raw = json.getString("raw");
+		//TODO 
+    }
+});
+```
+
+### getErc20Balance
+
+```java
+walletUtil.getErc20Balance(contract,address,new JCallback() {
+    @Override
+    public void completion(JCCJson json) {
+        String balance = json.getString("balance");
+		//TODO 
+    }
+});
+```
+
+### getGasPrice
+
+```java
+walletUtil.getGasPrice(new JCallback() {
+    @Override
+    public void completion(JCCJson json) {
+        String GasPrice = json.getString("GasPrice");
+		//TODO
+    }
+});
+```
+
+### getTransactionDetail
+
+```java
+walletUtil.getTransactionDetail(hash,new JCallback() {
+    @Override
+    public void completion(JCCJson json) {
+        String detail = json.toString());
+		//TODO
+
+    }
+});
+```
+
+### createWalletgetTransactionReceipt
+
+```java
+walletUtil.getTransactionReceipt(hash,new JCallback() {
+    @Override
+    public void completion(JCCJson json) {
+		String Receipt = json.toString());
+		//TODO
+    }
+});
+```
