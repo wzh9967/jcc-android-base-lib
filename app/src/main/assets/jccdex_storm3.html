@@ -163,6 +163,16 @@
             responseCallback(address);
         });
 
+        bridge.registerHandler("sendSignedTransaction", async function (raw, responseCallback) {
+             var hash;
+            try {
+                hash = await fstInstance.sendtransaction(raw)
+            } catch (e) {
+                hash = null;
+            }
+            responseCallback(hash);
+        });
+
 
         bridge.registerHandler("importWords", function (data, responseCallback) {
             var wallet;

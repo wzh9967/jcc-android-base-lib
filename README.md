@@ -785,3 +785,15 @@ walletUtil.getTransactionReceipt(hash,new JCallback() {
     }
 });
 ```
+
+### sendSignedTransaction
+
+```
+walletUtil.sendSignedTransaction(raw,new JCallback() {
+    @Override
+    public void completion(JCCJson json) {
+		 String hash = json.getString("hash");
+		//TODO
+    }
+});
+```

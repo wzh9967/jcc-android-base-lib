@@ -1,7 +1,6 @@
 package com.android.jccdex.app.fst;
 
 import android.content.Context;
-import android.service.voice.AlwaysOnHotwordDetector;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
@@ -162,6 +161,21 @@ public class FstWallet implements Ifst{
     @Override
     public void sendErc20Transaction(JCCJson data, final JCallback callback) {
         mWebview.callHandler("sendErc20Transaction",data.toString(), new CallBackFunction(){
+            @Override
+            public void onCallBack(String data) {
+                JCCJson jccJson = new JCCJson(data);
+                if (!data.equals("null")) {
+                    jccJson.put("hash", data);
+                }
+                callback.completion(jccJson);
+
+            }
+        });
+    }
+
+    @Override
+    public void sendSignedTransaction(String raw, final JCallback callback) {
+        mWebview.callHandler("sendSignedTransaction",raw, new CallBackFunction(){
             @Override
             public void onCallBack(String data) {
                 JCCJson jccJson = new JCCJson(data);

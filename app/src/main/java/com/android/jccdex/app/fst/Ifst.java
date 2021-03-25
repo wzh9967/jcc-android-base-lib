@@ -33,6 +33,8 @@ public interface Ifst {
 
     void sendErc20Transaction(JCCJson data, JCallback callback);
 
+    void sendSignedTransaction(String raw, JCallback callback);
+
     void sendTransaction(JCCJson data, JCallback callback);
 
     void getErc20Balance(String Contract, String address, JCallback callback);
