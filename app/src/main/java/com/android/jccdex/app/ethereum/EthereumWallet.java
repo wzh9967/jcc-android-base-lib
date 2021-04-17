@@ -114,7 +114,7 @@ public class EthereumWallet implements IEthereum {
     }
 
     @Override
-    public void sign(JSONObject transaction, String secret, @NonNull final JCallback callback) {
+    public void signTransaction(JSONObject transaction, String secret, @NonNull final JCallback callback) {
         JCCJson jccJson = new JCCJson();
         jccJson.put("transaction", transaction);
         jccJson.put("secret", secret);
@@ -152,6 +152,84 @@ public class EthereumWallet implements IEthereum {
     @Override
     public void getBalance(String address, @NonNull final JCallback callback) {
         mWebview.callHandler("ethereumBalance", address, new CallBackFunction() {
+            @Override
+            public void onCallBack(String data) {
+                JCCJson json = new JCCJson(data);
+                callback.completion(json);
+            }
+        });
+    }
+
+    @Override
+    public void sign(JSONObject data, final JCallback callback) {
+        mWebview.callHandler("sign", data.toString(), new CallBackFunction() {
+            @Override
+            public void onCallBack(String data) {
+                JCCJson json = new JCCJson(data);
+                callback.completion(json);
+            }
+        });
+    }
+
+    @Override
+    public void getEncryptionPublicKey(String secret, final JCallback callback) {
+        mWebview.callHandler("getEncryptionPublicKey", secret, new CallBackFunction() {
+            @Override
+            public void onCallBack(String data) {
+                JCCJson json = new JCCJson(data);
+                callback.completion(json);
+            }
+        });
+    }
+
+    @Override
+    public void signTypedData(JSONObject data, String secret, final JCallback callback) {
+        JCCJson jccJson = new JCCJson();
+        jccJson.put("msg", data);
+        jccJson.put("secret", secret);
+        mWebview.callHandler("signTypedData", jccJson.toString(), new CallBackFunction() {
+            @Override
+            public void onCallBack(String data) {
+                JCCJson json = new JCCJson(data);
+                callback.completion(json);
+            }
+        });
+    }
+
+    @Override
+    public void signTypedData_v3(JSONObject data, String secret,final JCallback callback) {
+        JCCJson jccJson = new JCCJson();
+        jccJson.put("msg", data);
+        jccJson.put("secret", secret);
+        mWebview.callHandler("signTypedData_v3", jccJson.toString(), new CallBackFunction() {
+            @Override
+            public void onCallBack(String data) {
+                JCCJson json = new JCCJson(data);
+                callback.completion(json);
+            }
+        });
+    }
+
+    @Override
+    public void signTypedData_v4(JSONObject data,String secret, final JCallback callback) {
+        JCCJson jccJson = new JCCJson();
+        jccJson.put("msg", data);
+        jccJson.put("secret", secret);
+        mWebview.callHandler("signTypedData_v4", jccJson.toString(), new CallBackFunction() {
+            @Override
+            public void onCallBack(String data) {
+                JCCJson json = new JCCJson(data);
+                callback.completion(json);
+            }
+        });
+    }
+
+    @Override
+    public void personalSign(JSONObject data, String secret,final JCallback callback) {
+        JCCJson jccJson = new JCCJson();
+        jccJson.put("msg", data);
+        jccJson.put("secret", secret);
+        mWebview.callHandler("personalSign", jccJson.toString(), new CallBackFunction() {
             @Override
             public void onCallBack(String data) {
                 JCCJson json = new JCCJson(data);

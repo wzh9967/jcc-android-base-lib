@@ -19,11 +19,26 @@ public interface IEthereum {
 
     void fromIban(String iban, JCallback callback);
 
-    void sign(JSONObject transaction, String secret, JCallback callback);
+    void signTransaction(JSONObject transaction, String secret, JCallback callback);
 
     void sendSignedTransaction(String signedTransaction, JCallback callback);
 
     void gasPrice(JCallback callback);
 
     void getBalance(String address, JCallback callback);
+
+    //公钥签名
+    void sign(JSONObject data, JCallback callback);
+
+    void getEncryptionPublicKey(String secret, JCallback callback);
+
+    void signTypedData(JSONObject data,String secret, JCallback callback);
+
+    void signTypedData_v3(JSONObject data,String secret, JCallback callback);
+
+    void signTypedData_v4(JSONObject data, String secret,JCallback callback);
+
+    void personalSign(JSONObject data, String secret,JCallback callback);
+
+
 }

@@ -25,6 +25,7 @@ public class EthereumWalletTest {
     private final static String ADDRESS = "0xd6ae77be193ec7f47b3a09ff7cd6330f77788669";
     private final static String SECRET = "0xa52ea5ee0ec191f772cebc62101d651e360eda9777a362b0d7d63b66288486af";
     private final static String IBAN = "XE37P2S1N2RK1JVVPCMHEVVA0UI8LAF7JOP";
+    private final static String PUBLIC_KEY = "C3YDepQyOU7VwlN1APt6IYmi6jHL0prOzQwFrncUTQo=";
 
     @Rule
     public ActivityTestRule<MainActivity> mActivityRule = new ActivityTestRule(MainActivity.class);
@@ -169,6 +170,24 @@ public class EthereumWalletTest {
     }
 
     @Test
+    public void testgetEncryptionPublicKey(){
+        final CountDownLatch sigal = new CountDownLatch(1);
+        manager.getEncryptionPublicKey(SECRET, new JCallback() {
+            @Override
+            public void completion(JCCJson json) {
+                String publicKey = json.getString("publicKey");
+                Assert.assertEquals(PUBLIC_KEY, publicKey);
+                sigal.countDown();
+            }
+        });
+        try {
+            sigal.await();
+        } catch (InterruptedException e) {
+
+        }
+    }
+
+    @Test
     public void testFromIban() {
         final CountDownLatch sigal = new CountDownLatch(1);
         manager.fromIban(IBAN, new JCallback() {
@@ -236,7 +255,7 @@ public class EthereumWalletTest {
             transaction.put("gas", "600000");
             transaction.put("gasPrice", "1000000000");
             final String sign = "0xf86480843b9aca00830927c0942995c1376a852e4040caf9dbae2c765e24c37a15018025a0252a5305e97275a547d25c4902fc696d6c9751708f66bba9f61c569e8428d6b4a06325b73c623359e3f2b824efd9dec1bda409d19e02e601cf6d390c45d7509ebb";
-            manager.sign(transaction, SECRET, new JCallback() {
+            manager.signTransaction(transaction, SECRET, new JCallback() {
                 @Override
                 public void completion(JCCJson json) {
                     String rawTransaction = json.getString("rawTransaction");
@@ -245,7 +264,7 @@ public class EthereumWalletTest {
                 }
             });
 
-            manager.sign(new JSONObject(), "aaaa", new JCallback() {
+            manager.signTransaction(new JSONObject(), "aaaa", new JCallback() {
                 @Override
                 public void completion(JCCJson json) {
                     String errorMessage = json.getString("errorMessage");
