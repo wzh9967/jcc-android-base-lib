@@ -176,8 +176,8 @@ public class EthereumWallet implements IEthereum {
         mWebview.callHandler("getEncryptionPublicKey", secret, new CallBackFunction() {
             @Override
             public void onCallBack(String data) {
-                JCCJson json = new JCCJson(data);
-                callback.completion(json);
+                JCCJson jccJson = new JCCJson(data);
+                callback.completion(jccJson);
             }
         });
     }

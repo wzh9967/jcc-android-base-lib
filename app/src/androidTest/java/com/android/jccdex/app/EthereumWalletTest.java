@@ -7,6 +7,7 @@ import com.android.jccdex.app.base.JCallback;
 import com.android.jccdex.app.ethereum.EthereumWallet;
 import com.android.jccdex.app.util.JCCJson;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.After;
 import org.junit.Assert;
@@ -26,6 +27,17 @@ public class EthereumWalletTest {
     private final static String SECRET = "0xa52ea5ee0ec191f772cebc62101d651e360eda9777a362b0d7d63b66288486af";
     private final static String IBAN = "XE37P2S1N2RK1JVVPCMHEVVA0UI8LAF7JOP";
     private final static String PUBLIC_KEY = "C3YDepQyOU7VwlN1APt6IYmi6jHL0prOzQwFrncUTQo=";
+    private final static String STRING = "";
+    private final static String TYPEDATA_V1 = "[{\"type\":\"string\",\"name\":\"message\",\"value\":\"Hi, Alice!\"}]";
+    private final static String TYPEDATA_V3 = "{\"types\":{\"EIP712Domain\":[{\"name\":\"name\",\"type\":\"string\"},{\"name\":\"version\",\"type\":\"string\"},{\"name\":\"chainId\",\"type\":\"uint256\"},{\"name\":\"verifyingContract\",\"type\":\"address\"}],\"Person\":[{\"name\":\"name\",\"type\":\"string\"},{\"name\":\"wallet\",\"type\":\"address\"}],\"Mail\":[{\"name\":\"from\",\"type\":\"Person\"},{\"name\":\"to\",\"type\":\"Person\"},{\"name\":\"contents\",\"type\":\"string\"}]},\"primaryType\":\"Mail\",\"domain\":{\"name\":\"Ether Mail\",\"version\":\"1\",\"chainId\":1,\"verifyingContract\":\"0xCcCCccccCCCCcCCCCCCcCcCccCcCCCcCcccccccC\"},\"message\":{\"from\":{\"name\":\"Cow\",\"wallet\":\"0xCD2a3d9F938E13CD947Ec05AbC7FE734Df8DD826\"},\"to\":{\"name\":\"Bob\",\"wallet\":\"0xbBbBBBBbbBBBbbbBbbBbbbbBBbBbbbbBbBbbBBbB\"},\"contents\":\"Hello, Bob!\"}}";
+    private final static String TYPEDATA_V4 = "{\"types\":{\"EIP712Domain\":[{\"name\":\"name\",\"type\":\"string\"},{\"name\":\"version\",\"type\":\"string\"},{\"name\":\"chainId\",\"type\":\"uint256\"},{\"name\":\"verifyingContract\",\"type\":\"address\"}],\"Person\":[{\"name\":\"name\",\"type\":\"string\"},{\"name\":\"wallet\",\"type\":\"address\"}],\"Mail\":[{\"name\":\"from\",\"type\":\"Person\"},{\"name\":\"to\",\"type\":\"Person\"},{\"name\":\"contents\",\"type\":\"string\"}]},\"primaryType\":\"Mail\",\"domain\":{\"name\":\"Ether Mail\",\"version\":\"1\",\"chainId\":1,\"verifyingContract\":\"0xCcCCccccCCCCcCCCCCCcCcCccCcCCCcCcccccccC\"},\"message\":{\"from\":{\"name\":\"Cow\",\"wallet\":\"0xCD2a3d9F938E13CD947Ec05AbC7FE734Df8DD826\"},\"to\":{\"name\":\"Bob\",\"wallet\":\"0xbBbBBBBbbBBBbbbBbbBbbbbBBbBbbbbBbBbbBBbB\"},\"contents\":\"Hello, Bob!\"}}";
+    private final static String TYPEDATA = "{\"types\":{\"EIP712Domain\":[{\"name\":\"name\",\"type\":\"string\"},{\"name\":\"version\",\"type\":\"string\"},{\"name\":\"chainId\",\"type\":\"uint256\"},{\"name\":\"verifyingContract\",\"type\":\"address\"}],\"Person\":[{\"name\":\"name\",\"type\":\"string\"},{\"name\":\"wallet\",\"type\":\"address\"}],\"Mail\":[{\"name\":\"from\",\"type\":\"Person\"},{\"name\":\"to\",\"type\":\"Person\"},{\"name\":\"contents\",\"type\":\"string\"}]},\"primaryType\":\"Mail\",\"domain\":{\"name\":\"Ether Mail\",\"version\":\"1\",\"chainId\":1,\"verifyingContract\":\"0xCcCCccccCCCCcCCCCCCcCcCccCcCCCcCcccccccC\"},\"message\":{\"from\":{\"name\":\"Cow\",\"wallet\":\"0xCD2a3d9F938E13CD947Ec05AbC7FE734Df8DD826\"},\"to\":{\"name\":\"Bob\",\"wallet\":\"0xbBbBBBBbbBBBbbbBbbBbbbbBBbBbbbbBbBbbBBbB\"},\"contents\":\"Hello, Bob!\"}}";
+    private final static String PERSONALDATA = "0xead3fe9e4d57be5adadc9ef329f7c645a18288c8"; //任意字符串
+    private final static String SIGNTYPE_RESULT = "0x4749c0aba33473f72f57576375772c9839f51b818f96478a4638bb31411df1bb3af38116e59dd11457cf2f623a4b50e7d3cb327d4017ed3bb5fc320884d128a81b\n";
+    private final static String SIGNTYPE_RESULT_V3 = "0x128cd6b70f29ae865992dbb5639317859961fc2f7eeaa4e813a1fc1ba0ac76241257abe164947eacafe7c3208b73030b1c57474c3bc5c0a2be794b53de5b9b111b\n";
+    private final static String SIGNTYPE_RESULT_V4 = "0x128cd6b70f29ae865992dbb5639317859961fc2f7eeaa4e813a1fc1ba0ac76241257abe164947eacafe7c3208b73030b1c57474c3bc5c0a2be794b53de5b9b111b";
+    private final static String PERSONALDATA_RESULT = "0xdd86b5e354b535706a66f27939f8d1a3ea1ed055ff73d97713d10a88a05459a42b94a740b5ebffe30d09090c3f30146e1c0c4fbc132f688431fc1129280ab8d51b";
+    private final static String STRING_RESULT = "";
 
     @Rule
     public ActivityTestRule<MainActivity> mActivityRule = new ActivityTestRule(MainActivity.class);
@@ -187,6 +199,107 @@ public class EthereumWalletTest {
         }
     }
 
+
+
+    @Test
+    public void testSign() throws JSONException {
+        final CountDownLatch sigal = new CountDownLatch(1);
+        manager.sign(new JSONObject(STRING), new JCallback() {
+            @Override
+            public void completion(JCCJson json) {
+                String result = json.getString("result");
+                Assert.assertEquals(STRING_RESULT, result);
+                sigal.countDown();
+            }
+        });
+        try {
+            sigal.await();
+        } catch (InterruptedException e) {
+
+        }
+    }
+
+
+
+    @Test
+    public void testSignTypedData() throws JSONException {
+        final CountDownLatch sigal = new CountDownLatch(1);
+        manager.signTypedData(new JSONObject(TYPEDATA_V1),SECRET, new JCallback() {
+            @Override
+            public void completion(JCCJson json) {
+                String result = json.getString("result");
+                Assert.assertEquals(SIGNTYPE_RESULT, result);
+                sigal.countDown();
+            }
+        });
+        try {
+            sigal.await();
+        } catch (InterruptedException e) {
+
+        }
+    }
+
+
+
+    @Test
+    public void testSignTypedData_v3() throws JSONException {
+        final CountDownLatch sigal = new CountDownLatch(1);
+        manager.signTypedData_v3(new JSONObject(TYPEDATA_V3),SECRET, new JCallback() {
+            @Override
+            public void completion(JCCJson json) {
+                String result = json.getString("result");
+                Assert.assertEquals(SIGNTYPE_RESULT_V3, result);
+                sigal.countDown();
+            }
+        });
+        try {
+            sigal.await();
+        } catch (InterruptedException e) {
+
+        }
+    }
+
+
+
+    @Test
+    public void testSignTypedData_v4() throws JSONException {
+        final CountDownLatch sigal = new CountDownLatch(1);
+        manager.signTypedData_v4(new JSONObject(TYPEDATA_V4),SECRET, new JCallback() {
+            @Override
+            public void completion(JCCJson json) {
+                String result = json.getString("result");
+                Assert.assertEquals(SIGNTYPE_RESULT_V4, result);
+                sigal.countDown();
+            }
+        });
+        try {
+            sigal.await();
+        } catch (InterruptedException e) {
+
+        }
+    }
+
+
+
+    @Test
+    public void testPersonalSign() throws JSONException {
+        final CountDownLatch sigal = new CountDownLatch(1);
+        manager.personalSign(new JSONObject(PERSONALDATA),SECRET, new JCallback() {
+            @Override
+            public void completion(JCCJson json) {
+                String result = json.getString("result");
+                Assert.assertEquals(PERSONALDATA_RESULT, result);
+                sigal.countDown();
+            }
+        });
+        try {
+            sigal.await();
+        } catch (InterruptedException e) {
+
+        }
+    }
+
+
     @Test
     public void testFromIban() {
         final CountDownLatch sigal = new CountDownLatch(1);
@@ -245,7 +358,7 @@ public class EthereumWalletTest {
     }
 
     @Test
-    public void testSign() {
+    public void testSignTransaction() {
         try {
             final CountDownLatch sigal = new CountDownLatch(1);
             JSONObject transaction = new JSONObject();
