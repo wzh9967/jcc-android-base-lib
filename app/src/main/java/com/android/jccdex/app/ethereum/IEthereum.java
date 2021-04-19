@@ -27,18 +27,16 @@ public interface IEthereum {
 
     void getBalance(String address, JCallback callback);
 
-    //公钥签名
-    void sign(JSONObject data, JCallback callback);
-
     void getEncryptionPublicKey(String secret, JCallback callback);
 
-    void signTypedData(JSONObject data,String secret, JCallback callback);
+    void signTypedData(JSONObject data,String secret,JCallback callback);
 
     void signTypedData_v3(JSONObject data,String secret, JCallback callback);
 
     void signTypedData_v4(JSONObject data, String secret,JCallback callback);
 
-    void personalSign(JSONObject data, String secret,JCallback callback);
+    void personalSign(String data, String secret, String password,JCallback callback);
 
+    void decrypt(String data, String secret, JCallback callback);
 
 }

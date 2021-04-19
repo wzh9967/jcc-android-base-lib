@@ -319,6 +319,83 @@ mEthereumWallet.getBalance(address, new JCallback() {
 });
 ```
 
+### getEncryptionPublicKey
+
+```java
+ mEthereumWallet.getEncryptionPublicKey(SECRET, new JCallback() {
+     @Override
+     public void completion(JCCJson json) {
+         String publicKey = json.getString("publicKey");
+         //the publicKey is not null if request balance successfully.
+
+     }
+ });
+```
+
+### decrypt
+
+```java
+//decrypy the message by publicKey`s secretKey
+
+mEthereumWallet.decrypt(DECRYPT_PARAMS,SECRET, new JCallback() {
+    @Override
+    public void completion(JCCJson json) {
+        String result = json.getString("result");
+		//the publicKey is not null if request balance successfully.
+    }
+});
+```
+
+
+
+### signTypedData
+
+```java
+ mEthereumWallet.signTypedData(new JSONObject(TYPEDATA_V1),SECRET, new JCallback() {
+     @Override
+     public void completion(JCCJson json) {
+         String result = json.getString("result");
+		//the result is not null if request balance successfully.
+     }
+ });
+```
+
+### signTypedData_v3
+
+```java
+mEthereumWallet.signTypedData_v3(new JSONObject(TYPEDATA_V3),SECRET, new JCallback() {
+    @Override
+    public void completion(JCCJson json) {
+        String result = json.getString("result");
+        //the result is not null if request balance successfully.
+    }
+});
+```
+
+### signTypedData_v4
+
+```java
+mEthereumWallet.signTypedData_v4(new JSONObject(TYPEDATA_V4),SECRET, new JCallback() {
+    @Override
+    public void completion(JCCJson json) {
+        String result = json.getString("result");
+	 	//the result is not null if request balance successfully.
+    }
+});
+```
+
+### personalSign
+
+```java
+mEthereumWallet.personalSign(PERSONALDATA,SECRET,PASSWORD, new JCallback() {
+    @Override
+    public void completion(JCCJson json) {
+        String result = json.getString("result");
+		//the result is not null if request balance successfully.
+    }
+});
+```
+
 ## API of MoacWallet
 
 Interface for interacting with the node sdk of chain3. Create MoacWallet with Context in your activity.

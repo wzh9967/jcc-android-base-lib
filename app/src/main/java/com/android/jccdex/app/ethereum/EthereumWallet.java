@@ -161,17 +161,6 @@ public class EthereumWallet implements IEthereum {
     }
 
     @Override
-    public void sign(JSONObject data, final JCallback callback) {
-        mWebview.callHandler("sign", data.toString(), new CallBackFunction() {
-            @Override
-            public void onCallBack(String data) {
-                JCCJson json = new JCCJson(data);
-                callback.completion(json);
-            }
-        });
-    }
-
-    @Override
     public void getEncryptionPublicKey(String secret, final JCallback callback) {
         mWebview.callHandler("getEncryptionPublicKey", secret, new CallBackFunction() {
             @Override
@@ -225,11 +214,26 @@ public class EthereumWallet implements IEthereum {
     }
 
     @Override
-    public void personalSign(JSONObject data, String secret,final JCallback callback) {
+    public void personalSign(String data, String secret, String password,final JCallback callback) {
         JCCJson jccJson = new JCCJson();
         jccJson.put("msg", data);
         jccJson.put("secret", secret);
+        jccJson.put("password",password);
         mWebview.callHandler("personalSign", jccJson.toString(), new CallBackFunction() {
+            @Override
+            public void onCallBack(String data) {
+                JCCJson json = new JCCJson(data);
+                callback.completion(json);
+            }
+        });
+    }
+
+    @Override
+    public void decrypt(String data, String secret, final JCallback callback) {
+        JCCJson jccJson = new JCCJson();
+        jccJson.put("msg", data);
+        jccJson.put("secret", secret);
+        mWebview.callHandler("decrypt", jccJson.toString(), new CallBackFunction() {
             @Override
             public void onCallBack(String data) {
                 JCCJson json = new JCCJson(data);

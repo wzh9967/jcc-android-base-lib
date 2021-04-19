@@ -7,7 +7,7 @@
 <script src="Buffer.min.js"></script>
 <script src="web3.min.js"></script>
 <script src="mnemonic.min.js"></script>
-<script src="MetaMaskApi.js"></script>
+<script src="MateMaskApi.js"></script>
 <script>
     function connectWebViewJavascriptBridge(callback) {
         if (window.WebViewJavascriptBridge) {
@@ -71,22 +71,35 @@
             responseCallback(valid);
         })
 
-
-        bridge.registerHandler("sign", function (data, responseCallback) {
+        bridge.registerHandler("decrypt", function (data, responseCallback) {
             var obj = {};
             data = JSON.parse(data);
-            var msg = data.msg;
+            var msg = data.msg
             var secret = data.secret;
-            obj.result =  web3.eth.sign(msg,secret)
-            responseCallback(obj);
+            try{
+                var pk = Buffer.from(secret.substr(2), 'hex')
+                let naclsecretKey =  nacl.box.keyPair.fromSecretKey(pk).secretKey
+                let encryption = Ethers.utils.toUtf8String(msg)
+                obj.result= sigUtil.decrypt(JSON.parse(encryption),naclsecretKey)
+                responseCallback(obj);
+            }catch(e){
+                obj.result= e
+                responseCallback(obj);
+            }
+
         })
 
         bridge.registerHandler("getEncryptionPublicKey", function (secret, responseCallback) {
             var obj = {};
-            var pk = Buffer.from(secret.substr(2), 'hex')
-            let naclPublicKey =  nacl.box.keyPair.fromSecretKey(pk).publicKey
-            obj.publicKey = encodeBase64(naclPublicKey)
-            responseCallback(obj);
+            try{
+                var pk = Buffer.from(secret.substr(2), 'hex')
+                let naclPublicKey =  nacl.box.keyPair.fromSecretKey(pk).publicKey
+                obj.publicKey = encodeBase64(naclPublicKey)
+                responseCallback(obj);
+            }catch(e){
+                obj.result= e
+                responseCallback(obj);
+            }
         })
 
         bridge.registerHandler("signTypedData", function (data, responseCallback) {
@@ -94,9 +107,14 @@
             data = JSON.parse(data);
             var msg = data.msg;
             var secret = data.secret;
-            var pk = Buffer.from(secret.substr(2), 'hex')
-            obj.result = sigUtil.signTypedMessage(pk, { data: msg }, 'V1')
-            responseCallback(obj);
+            try{
+                var pk = Buffer.from(secret.substr(2), 'hex')
+                obj.result = sigUtil.signTypedMessage(pk, { data: [msg] }, 'V1')
+                responseCallback(obj);
+            }catch(e){
+                obj.result= e
+                responseCallback(obj);
+            }
         })
 
         bridge.registerHandler("signTypedData_v3", function (data, responseCallback) {
@@ -104,9 +122,14 @@
             data = JSON.parse(data);
             var msg = data.msg;
             var secret = data.secret;
-            var pk = Buffer.from(secret.substr(2), 'hex')
-            obj.result = sigUtil.signTypedMessage(pk, { data: msg}, 'V3')
-            responseCallback(obj);
+            try{
+                var pk = Buffer.from(secret.substr(2), 'hex')
+                obj.result = sigUtil.signTypedMessage(pk, { data: msg}, 'V3')
+                responseCallback(obj);
+            }catch(e){
+                obj.result= e
+                responseCallback(obj);
+            }
         })
 
         bridge.registerHandler("signTypedData_v4", function (data, responseCallback) {
@@ -114,19 +137,31 @@
             data = JSON.parse(data);
             var msg = data.msg;
             var secret = data.secret;
-            var pk = Buffer.from(secret.substr(2), 'hex')
-            obj.result = sigUtil.signTypedData_v4(secret, {data:msg})
-            responseCallback(obj);
+            try{
+                var pk = Buffer.from(secret.substr(2), 'hex')
+                obj.result = sigUtil.signTypedData_v4(pk, { data: msg})
+                responseCallback(obj);
+            }catch(e){
+                obj.result= e
+                responseCallback(obj);
+            }
         })
 
-        bridge.registerHandler("personalSign", function (address, responseCallback) {
+        bridge.registerHandler("personalSign", function (data, responseCallback) {
             var obj = {};
             data = JSON.parse(data);
             var msg = data.msg;
+            var password = data.password;
             var secret = data.secret;
-            var pk = Buffer.from(secret.substr(2), 'hex')
-            obj.result = sigUtil.personalSign(secret,{data: paramJson.params[0],msg:msg});
-            responseCallback(obj);
+            try{
+                var pk = Buffer.from(secret.substr(2), 'hex')
+                obj.result = sigUtil.personalSign(pk,{data: msg,msg:password});
+                responseCallback(obj);
+            }catch(e){
+                obj.result= e
+                responseCallback(obj);
+            }
+
         })
 
         bridge.registerHandler("isValidEthereumSecret", function (secret, responseCallback) {
