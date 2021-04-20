@@ -29,7 +29,7 @@ public interface IEthereum {
 
     void getEncryptionPublicKey(String secret, JCallback callback);
 
-    void signTypedData(JSONObject data,String secret,JCallback callback);
+    void signTypedData(String typeData,String secret,JCallback callback);
 
     void signTypedData_v3(JSONObject data,String secret, JCallback callback);
 

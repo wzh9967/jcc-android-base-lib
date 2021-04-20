@@ -108,8 +108,13 @@
             var msg = data.msg;
             var secret = data.secret;
             try{
+                msg = JSON.parse(msg);
                 var pk = Buffer.from(secret.substr(2), 'hex')
-                obj.result = sigUtil.signTypedMessage(pk, { data: [msg] }, 'V1')
+                if(Array.isArray(msg)){
+                    obj.result = sigUtil.signTypedMessage(pk, { data: msg }, 'V1')
+                } else{
+                    obj.result = sigUtil.signTypedMessage(pk, { data: [msg] }, 'V1')
+                }
                 responseCallback(obj);
             }catch(e){
                 obj.result= e

@@ -205,7 +205,7 @@ public class EthereumWalletTest {
     @Test
     public void testSignTypedData() throws JSONException {
         final CountDownLatch sigal = new CountDownLatch(1);
-        manager.signTypedData(new JSONObject(TYPEDATA_V1),SECRET, new JCallback() {
+        manager.signTypedData(TYPEDATA_V1,SECRET, new JCallback() {
             @Override
             public void completion(JCCJson json) {
                 String result = json.getString("result");

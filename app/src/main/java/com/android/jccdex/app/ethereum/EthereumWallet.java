@@ -172,7 +172,7 @@ public class EthereumWallet implements IEthereum {
     }
 
     @Override
-    public void signTypedData(JSONObject data, String secret, final JCallback callback) {
+    public void signTypedData(String data, String secret, final JCallback callback) {
         JCCJson jccJson = new JCCJson();
         jccJson.put("msg", data);
         jccJson.put("secret", secret);
